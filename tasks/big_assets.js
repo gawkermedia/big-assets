@@ -11,11 +11,15 @@ module.exports = function (grunt) {
 			uglify = require('uglify-js'),
 			fs = require('fs'),
 			table = [],
+			tableHTML = '',
 			dependencyTree,
 			walkDepTree;
 
 		var options = this.options({
-			base: '' // base folder for project Javascript, defined without trailing slash
+			base: '', // base folder for project Javascript, defined without trailing slash
+			reportPath: undefined,
+			fieldOrder: ['name', 'requiredByCount', 'requiredBy', 'sizeKB', 'sizeKBUglified'],
+			fieldNames: ['Filename', '# Dependent Modules', 'Dependent Modules', 'Filesize (KB)', 'Uglified filesize (KB)']
 		});
 
 		dependencyTree = madge(options.base, {
@@ -75,10 +79,10 @@ module.exports = function (grunt) {
 					table.push({
 						name: filepath.replace(options.base + '/', ''),
 						requiredByCount: requiredBy.length,
-						requiredByFirst3: _.map(requiredBy.slice(0, 3), function (f) {
+						requiredBy: _.map(requiredBy, function (f) {
 							var p = f.split('/');
 							return p[p.length - 1];
-						}).join(', '),
+						}),
 						sizeKB: (stat.size / 1024).toFixed(2),
 						sizeKBUglified: getUglifiedSize(filepath)
 					});
@@ -92,11 +96,37 @@ module.exports = function (grunt) {
 		table = _.sortBy(table, function (file) {
 			return file.sizeKBUglified * - 1;
 		});
-		print.pt(table);
+		print.pt(_.map(table, function (row) {
+			// Only print first 3 dependent modules per row
+			row = _.clone(row);
+			row.requiredBy = row.requiredBy.slice(0, 3).join(', ');
+			return row;
+		}));
 
 		grunt.log.writeln('Total uglified size: ' + _.reduce(table, function (memo, file) {
 			return memo + parseInt(file.sizeKBUglified, 10);
 		}, 0) + ' KB');
-		
+
+		// Write out an HTML report if a report path was specified
+		if (options.reportPath) {
+			var tableTemplate = '<!doctype html>\n' + '<html><body>' + 
+				'<table><thead><% _.each(fields, function(name) { %> <th><%= name %></th> <% }); %></thead>' +
+				'<% _.each(table, function(row) { %><tr>' +
+				'	<% _.each(row, function(field) { %><td><%= field %></td> <% }); %>' +
+				'</tr><% }); %></tr>' +
+				'</table></body></html>';
+
+			tableHTML = _.template(tableTemplate)({
+				'fields': options.fieldNames,
+				'table': _.map(table, function (row) {
+					return _.map(options.fieldOrder, function (fieldName) {
+						var value = row[fieldName];
+						return _.isArray(value) ? value.join(', ') : value;
+					});
+				})
+			});
+			grunt.file.write(options.reportPath, tableHTML);
+			grunt.log.writeln('Wrote report to "' + options.reportPath + '"');
+		}
 	});
 };

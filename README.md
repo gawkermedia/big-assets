@@ -26,7 +26,8 @@ In your project's Gruntfile, add a section named `big_assets` to the data object
 grunt.initConfig({
   big_assets: {
     options: {
-      base: 'public/javascripts'  // base path to project Javascript (no trailing slash)
+      base: 'public/javascripts'  // base path to project Javascript (no trailing slash),
+      reportPath: 'target/grunt/big-assets.html'  // path to output a report in HTML format (optional)
     },
     files: ['public/javascripts/**/*.js']
   }
@@ -40,6 +41,12 @@ Type: `String`
 Default value: `''`
 
 Base path to the project Javascript, relative to the Gruntfile.
+
+### options.reportPath
+Type: `String`
+Default value: `undefined`
+
+Optional path to generate an HTML version of the big assets report.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
