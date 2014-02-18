@@ -1,6 +1,8 @@
 # grunt-big-assets
 
-> Analyzes an AMD project's Javascript, attempting to highlight large dependencies that should be removed, replaced, or refactored.
+> Analyzes an AMD project's Javascript (using [madge](https://github.com/pahen/madge)), generating a report of largest Javascript dependencies.
+
+> Dependencies are sorted in descending order by Uglified filesize.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.2`
