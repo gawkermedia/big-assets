@@ -55,5 +55,6 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+ * 2014-03-12   v0.1.1   Speed up analysis dramatically by caching intensive calls.
  * 2014-02-14   v0.1.0   Initial rough release, lacks tests or significant configurability.
 

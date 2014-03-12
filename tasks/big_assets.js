@@ -25,9 +25,10 @@ module.exports = function (grunt) {
 		dependencyTree = madge(options.base, {
 			format: 'amd'
 		});
-		walkDepTree = function (paths) {
+
+		walkDepTree = _.memoize(function (paths) {
 			// Given a set of AMD module paths, walk the dependency for each path until the ultimate
-			// dependency is reached, returning the list of top-level dependencies for each path. */
+			// dependency is reached, returning the list of top-level dependencies for each path.
 			var nextDeps = _.map(paths, function (path) {
 				if (!path) {
 					return false;
@@ -40,7 +41,7 @@ module.exports = function (grunt) {
 				}
 			});
 			return _.uniq(_.flatten(nextDeps));
-		};
+		});
 
 		var getUglifiedSize = function (file) {
 			return (Buffer.byteLength(uglify.minify(file).code, 'utf8') / 1024).toFixed(2);

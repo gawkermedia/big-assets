@@ -1,23 +1,23 @@
 {
   "name": "grunt-big-assets",
   "description": "Analyzes a project's JS, attempting to highlight large dependencies that should be removed, replaced, or refactored.",
-  "version": "0.1.0",
-  "homepage": "https://github.com/bregenspan/big-assets",
+  "version": "0.1.1",
+  "homepage": "https://github.com/gawkermedia/big-assets",
   "author": {
     "name": "Ben Regenspan",
     "email": "bregenspan@gawker.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/bregenspan/big-assets.git"
+    "url": "git://github.com/gawkermedia/big-assets.git"
   },
   "bugs": {
-    "url": "https://github.com/bregenspan/big-assets/issues"
+    "url": "https://github.com/gawkermedia/big-assets/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/bregenspan/big-assets/blob/master/LICENSE-MIT"
+      "url": "https://github.com/gawkermedia/big-assets/blob/master/LICENSE-MIT"
     }
   ],
   "engines": {
