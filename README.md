@@ -57,6 +57,11 @@ Default value:
 
 Configuration options to pass on to Madge (<a href="https://github.com/pahen/madge/tree/0.3.5#madgesrc-opts">full list of options</a>).
 
+### options.filterPrefix
+
+AMD module identifier prefix to filter the report with (by excluding display of Dependent Modules
+that don't match the prefix).
+
 ### options.reportPath
 Type: `String`
 Default value: `undefined`
