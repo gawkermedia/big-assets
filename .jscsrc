@@ -1,0 +1,8 @@
+{
+	"preset": [
+		"crockford"
+	],
+	"validateIndentation": "\t",
+	"disallowDanglingUnderscores": null,
+	"requireLineFeedAtFileEnd": null
+}

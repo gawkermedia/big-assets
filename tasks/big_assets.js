@@ -10,12 +10,18 @@ module.exports = function (grunt) {
 			ProgressBar = require('progress'),
 			uglify = require('uglify-js'),
 			fs = require('fs'),
+			dependencyTree,
+			options,
 			table = [],
 			tableHTML = '',
-			dependencyTree,
+			tableTemplate,
 			walkDepTree;
 
-		var options = this.options({
+		function getUglifiedSize(file) {
+			return (Buffer.byteLength(uglify.minify(file).code, 'utf8') / 1024).toFixed(2);
+		};
+
+		options = this.options({
 			base: '', // base folder for project Javascript, defined without trailing slash
 			reportPath: undefined,
 			fieldOrder: ['name', 'requiredByCount', 'requiredBy', 'sizeKB', 'sizeKBUglified'],
@@ -26,26 +32,28 @@ module.exports = function (grunt) {
 			format: 'amd'
 		});
 
-		walkDepTree = _.memoize(function (paths) {
+		walkDepTree = _.memoize(function (paths, alreadySeen) {
+			if (!alreadySeen) {
+				alreadySeen = [];
+			}
 			// Given a set of AMD module paths, walk the dependency for each path until the ultimate
 			// dependency is reached, returning the list of top-level dependencies for each path.
 			var nextDeps = _.map(paths, function (path) {
-				if (!path) {
-					return false;
-				}
-				var depends = dependencyTree.depends(path);
-				if (!depends.length) {
+				var depends;
+
+				depends = dependencyTree.depends(path);
+
+				if (!depends.length || _.contains(alreadySeen, path)) {
+					// There are no more dependencies to check, or we've already checked this one
 					return path;
 				} else {
-					return walkDepTree(depends);
+					alreadySeen.push(path);
+					return walkDepTree(depends, alreadySeen);
 				}
 			});
+
 			return _.uniq(_.flatten(nextDeps));
 		});
-
-		var getUglifiedSize = function (file) {
-			return (Buffer.byteLength(uglify.minify(file).code, 'utf8') / 1024).toFixed(2);
-		};
 
 		// Loop through file groups
 		this.files.forEach(function (file) {
@@ -66,10 +74,11 @@ module.exports = function (grunt) {
 			// Walk through files in group, obtaining their dependencies and sizes
 			filesInGroup.map(function (filepath) {
 				var amdPath = filepath.replace(options.base + '/', '').replace('.js', ''),
-					stat = fs.statSync(filepath);
+					stat = fs.statSync(filepath),
+					requiredBy;
 
 				// Get modules that are dependent on this one
-				var requiredBy = walkDepTree([amdPath]);
+				requiredBy = walkDepTree([amdPath]);
 
 				// Filter current module from list of own dependencies
 				requiredBy = _.filter(requiredBy, function (path) {
@@ -95,7 +104,7 @@ module.exports = function (grunt) {
 
 		// Sort table by descending uglified filesize
 		table = _.sortBy(table, function (file) {
-			return file.sizeKBUglified * - 1;
+			return file.sizeKBUglified * -1;
 		});
 		print.pt(_.map(table, function (row) {
 			// Only print first 3 dependent modules per row
@@ -110,7 +119,7 @@ module.exports = function (grunt) {
 
 		// Write out an HTML report if a report path was specified
 		if (options.reportPath) {
-			var tableTemplate = '<!doctype html>\n' + '<html><body>' + 
+			tableTemplate = '<!doctype html>\n' + '<html><body>' +
 				'<table><thead><% _.each(fields, function(name) { %> <th><%= name %></th> <% }); %></thead>' +
 				'<% _.each(table, function(row) { %><tr>' +
 				'	<% _.each(row, function(field) { %><td><%= field %></td> <% }); %>' +
@@ -118,8 +127,8 @@ module.exports = function (grunt) {
 				'</table></body></html>';
 
 			tableHTML = _.template(tableTemplate)({
-				'fields': options.fieldNames,
-				'table': _.map(table, function (row) {
+				fields: options.fieldNames,
+				table: _.map(table, function (row) {
 					return _.map(options.fieldOrder, function (fieldName) {
 						var value = row[fieldName];
 						return _.isArray(value) ? value.join(', ') : value;
