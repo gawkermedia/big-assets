@@ -23,15 +23,22 @@ module.exports = function (grunt) {
 		}
 
 		options = this.options({
-			base: '', // base folder for project Javascript, defined without trailing slash
-			reportPath: '',
+			base: '',  // base folder for project Javascript, defined without trailing slash
+			reportPath: '',  // path to write HTML report to
+			filterPrefix: '',  // optional module identifier prefix to filter top-level packages/dependent modules with
+			madge: {},  // configuration for Madge
+
 			fieldOrder: ['name', 'requiredByCount', 'requiredBy', 'sizeKB', 'sizeKBUglified'],
 			fieldNames: ['Filename', '# Dependent Modules', 'Dependent Modules', 'Filesize (KB)', 'Uglified filesize (KB)']
 		});
 
-		dependencyTree = madge(options.base, {
-			format: 'amd'
+		_.defaults(options.madge, {
+			format: 'amd',
+			findNestedDependencies: false,
+			requireConfig: ''
 		});
+
+		dependencyTree = madge(options.base, options.madge);
 
 		walkDepTree = _.memoize(function (paths, alreadySeen) {
 			if (!alreadySeen) {
@@ -84,10 +91,17 @@ module.exports = function (grunt) {
 				// Get modules that are dependent on this one
 				requiredBy = walkDepTree([amdPath]);
 
-				// Filter current module from list of own dependencies
+				// Filter current module from list of modules depending on this one
 				requiredBy = _.filter(requiredBy, function (path) {
 					return path !== amdPath;
 				});
+
+				// Filter out any dependent modules not beginning with `filterPrefix` if one is specified
+				if (options.filterPrefix) {
+					requiredBy = _.filter(requiredBy, function (path) {
+						return path.indexOf(options.filterPrefix) === 0;
+					});
+				}
 
 				if (requiredBy.length) {
 					table.push({

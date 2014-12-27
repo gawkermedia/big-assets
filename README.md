@@ -44,17 +44,30 @@ Default value: `''`
 
 Base path to the project Javascript, relative to the Gruntfile.
 
+### options.madge
+Type: `object`
+Default value:
+```
+{
+  format: 'amd',
+  findNestedDependencies: false,
+  requireConfigFile: ''
+}
+```
+
+Configuration options to pass on to Madge (<a href="https://github.com/pahen/madge/tree/0.3.5#madgesrc-opts">full list of options</a>).
+
 ### options.reportPath
 Type: `String`
 Default value: `undefined`
 
 Optional path to generate an HTML version of the big assets report.
 
-## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
 
+ * 2014-12-27   v0.1.3   Actually fix circular dependency issues. Update Madge, add `filterPrefix` option
+                            and `madge` option for setting Madge configuration.
+ * 2014-12-26   v0.1.2   Attempt to resolve circular dependency issues but break everything.
  * 2014-03-12   v0.1.1   Speed up analysis dramatically by caching intensive calls.
  * 2014-02-14   v0.1.0   Initial rough release, lacks tests or significant configurability.
-
