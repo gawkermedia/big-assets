@@ -9,8 +9,9 @@ module.exports = function (grunt) {
 			print = require('node-print'),
 			ProgressBar = require('progress'),
 			uglify = require('uglify-js'),
-			fs = require('fs'),
-			dependencyTree,
+			fs = require('fs');
+
+		var dependencyTree,
 			options,
 			table = [],
 			tableHTML = '',
@@ -19,11 +20,11 @@ module.exports = function (grunt) {
 
 		function getUglifiedSize(file) {
 			return (Buffer.byteLength(uglify.minify(file).code, 'utf8') / 1024).toFixed(2);
-		};
+		}
 
 		options = this.options({
 			base: '', // base folder for project Javascript, defined without trailing slash
-			reportPath: undefined,
+			reportPath: '',
 			fieldOrder: ['name', 'requiredByCount', 'requiredBy', 'sizeKB', 'sizeKBUglified'],
 			fieldNames: ['Filename', '# Dependent Modules', 'Dependent Modules', 'Filesize (KB)', 'Uglified filesize (KB)']
 		});
@@ -36,16 +37,19 @@ module.exports = function (grunt) {
 			if (!alreadySeen) {
 				alreadySeen = [];
 			}
-			// Given a set of AMD module paths, walk the dependency for each path until the ultimate
+			// Given a set of AMD module paths, walk the dependencies for each path until the ultimate
 			// dependency is reached, returning the list of top-level dependencies for each path.
 			var nextDeps = _.map(paths, function (path) {
 				var depends;
 
 				depends = dependencyTree.depends(path);
 
-				if (!depends.length || _.contains(alreadySeen, path)) {
-					// There are no more dependencies to check, or we've already checked this one
+				if (!depends.length) {
+					// We've hit the end of the dependency tree
 					return path;
+				} else if (_.contains(alreadySeen, path)) {
+					// We've hit a circular dependency
+					return [];
 				} else {
 					alreadySeen.push(path);
 					return walkDepTree(depends, alreadySeen);
