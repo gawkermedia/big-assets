@@ -1,7 +1,7 @@
 {
   "name": "grunt-big-assets",
   "description": "Analyzes a project's JS, attempting to highlight large dependencies that should be removed, replaced, or refactored.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://github.com/gawkermedia/big-assets",
   "author": {
     "name": "Ben Regenspan",
@@ -23,7 +23,7 @@
   "engines": {
     "node": ">= 0.8.0"
   },
-  "devDependencies": {
+  "dependencies": {
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-clean": "~0.4.0",
     "grunt": "~0.4.2",
