@@ -71,6 +71,7 @@ Optional path to generate an HTML version of the big assets report.
 
 ## Release History
 
+ * 2018-06-05   v0.1.4   Updated UglifyJS version to a more secure one
  * 2014-12-27   v0.1.3   Actually fix circular dependency issues. Update Madge, add `filterPrefix` option
                             and `madge` option for setting Madge configuration.
  * 2014-12-26   v0.1.2   Attempt to resolve circular dependency issues but break everything.
